@@ -7,10 +7,10 @@ import lombok.Data;
 
 @Data
 public class LoginRequest {
-    @NotBlank
+    @NotBlank(message = "username required")
     private String username;
     @NotBlank
-    @Size(min = 6 )
+    @Size(min = 6 , message = "password must be at least 6 carachter")
     private String password;
 
 }
