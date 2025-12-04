@@ -26,7 +26,7 @@ public class Client {
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private CustomerTier tier = CustomerTier.BASIC;
+    private CustomerTier customerTier = CustomerTier.BASIC;
     
     @Column(nullable = false)
     private Integer totalOrders = 0;

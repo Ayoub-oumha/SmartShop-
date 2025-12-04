@@ -1,14 +1,15 @@
 package com.gestionapprovisionnements.smartshop.servec.Impl;
 
-import com.gestionapprovisionnements.smartshop.dto.Client.Request.ClientRequest;
+import com.gestionapprovisionnements.smartshop.dto.Client.Request.ClientUpdatRequest;
 import com.gestionapprovisionnements.smartshop.dto.Client.Response.ClientResponse;
 import com.gestionapprovisionnements.smartshop.entity.Client;
-import com.gestionapprovisionnements.smartshop.entity.enums.CustomerTier;
+import com.gestionapprovisionnements.smartshop.exiption.NotFoundException;
 import com.gestionapprovisionnements.smartshop.mapper.ClientMapper;
 import com.gestionapprovisionnements.smartshop.repository.ClientRepository;
 import com.gestionapprovisionnements.smartshop.servec.ClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,37 +22,27 @@ public class ClientServiceImpl implements ClientService {
     private final ClientMapper clientMapper;
 
     @Override
-    public ClientResponse create(ClientRequest request) {
-        if (clientRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already taken");
+    @Transactional
+    public ClientResponse update(Long id, ClientUpdatRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("Request must not be null");
         }
 
-        Client client = Client.builder()
-                .nom(request.getNom())
-                .email(request.getEmail())
-                .tier(CustomerTier.BASIC)
-                .build();
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Client not found"));
+
+        // Mise à jour partielle via MapStruct : n'écrase que les champs non nuls du DTO
+        clientMapper.updateFromDto(request, client);
 
         Client saved = clientRepository.save(client);
         return clientMapper.toResponse(saved);
     }
 
     @Override
-    public ClientResponse update(Long id, ClientRequest request) {
-        Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Client not found"));
 
-        client.setNom(request.getNom());
-        client.setEmail(request.getEmail());
-
-        Client updated = clientRepository.save(client);
-        return clientMapper.toResponse(updated);
-    }
-
-    @Override
     public void delete(Long id) {
         if (!clientRepository.existsById(id)) {
-            throw new RuntimeException("Client not found");
+            throw new NotFoundException("Client not found");
         }
         clientRepository.deleteById(id);
     }
@@ -59,7 +50,7 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public ClientResponse get(Long id) {
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Client not found"));
+                .orElseThrow(() -> new NotFoundException("Client with this id  not found"));
         return clientMapper.toResponse(client);
     }
 
