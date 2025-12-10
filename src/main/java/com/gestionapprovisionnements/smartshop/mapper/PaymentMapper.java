@@ -1,7 +1,6 @@
 package com.gestionapprovisionnements.smartshop.mapper;
 
-import com.gestionapprovisionnements.smartshop.dto.Payment.request.PaymentCreateDTO;
-import com.gestionapprovisionnements.smartshop.dto.Payment.request.PaymentUpdateStatusDTO;
+import com.gestionapprovisionnements.smartshop.dto.Payment.request.PaymentRequest;
 import com.gestionapprovisionnements.smartshop.dto.Payment.response.PaymentResponseDTO;
 import com.gestionapprovisionnements.smartshop.entity.Payment;
 import org.mapstruct.Mapper;
@@ -21,7 +20,7 @@ public interface PaymentMapper {
     @Mapping(target = "numeroPaiement", ignore = true)
     @Mapping(target = "datePaiement", ignore = true)
     @Mapping(target = "statut", ignore = true)
-    Payment toEntity(PaymentCreateDTO request);
+    Payment toEntity(PaymentRequest request);
 
     // no direct mapping for update status dto -> entity; handled in service
 }

@@ -1,6 +1,6 @@
 package com.gestionapprovisionnements.smartshop.servec.Impl;
 
-import com.gestionapprovisionnements.smartshop.dto.Payment.request.PaymentCreateDTO;
+import com.gestionapprovisionnements.smartshop.dto.Payment.request.PaymentRequest;
 import com.gestionapprovisionnements.smartshop.dto.Payment.request.PaymentUpdateStatusDTO;
 import com.gestionapprovisionnements.smartshop.dto.Payment.response.PaymentResponseDTO;
 import com.gestionapprovisionnements.smartshop.entity.Order;
@@ -32,23 +32,23 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public PaymentResponseDTO addPayment(PaymentCreateDTO dto) {
-        Order order = orderRepository.findById(dto.getOrderId())
+    public PaymentResponseDTO addPayment(PaymentRequest paymentRequest) {
+        Order order = orderRepository.findById(paymentRequest.getOrderId())
                 .orElseThrow(() -> new NotFoundException("Order not found"));
 
         if (order.getStatut() != OrderStatus.PENDING) {
             throw new BusinessException("Cannot add payment to non-PENDING order");
         }
 
-        if (dto.getMontant() <= 0) {
+        if (paymentRequest.getMontant() <= 0) {
             throw new BusinessException("Payment amount must be positive");
         }
 
-        if (dto.getMontant() > order.getMontantRestant()) {
+        if (paymentRequest.getMontant() > order.getMontantRestant()) {
             throw new BusinessException("Payment amount exceeds remaining amount");
         }
 
-        if (dto.getType() == PaymentType.ESPECES && dto.getMontant() > 20000) {
+        if (paymentRequest.getType() == PaymentType.ESPECES && paymentRequest.getMontant() > 20000) {
             throw new BusinessException("Cash payment cannot exceed 20,000 DH");
         }
 
@@ -58,14 +58,14 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = Payment.builder()
                 .orderId(order.getId())
                 .numeroPaiement(nextNumber)
-                .montant(Math.round(dto.getMontant() * 100.0) / 100.0)
-                .type(dto.getType())
+                .montant(Math.round(paymentRequest.getMontant() * 100.0) / 100.0)
+                .type(paymentRequest.getType())
                 .datePaiement(LocalDateTime.now())
-                .statut(dto.getType() == PaymentType.ESPECES ? PaymentStatus.ENCAISSE : PaymentStatus.EN_ATTENTE)
-                .numeroCheque(dto.getNumeroCheque())
-                .banque(dto.getBanque())
-                .echeance(dto.getEcheance())
-                .reference(dto.getReference())
+                .statut(paymentRequest.getType() == PaymentType.ESPECES ? PaymentStatus.ENCAISSE : PaymentStatus.EN_ATTENTE)
+                .numeroCheque(paymentRequest.getNumeroCheque())
+                .banque(paymentRequest.getBanque())
+                .echeance(paymentRequest.getEcheance())
+                .reference(paymentRequest.getReference())
                 .build();
 
         if (payment.getStatut() == PaymentStatus.ENCAISSE) {
@@ -83,7 +83,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public PaymentResponseDTO updatePaymentStatus(Long paymentId, PaymentUpdateStatusDTO dto) {
+    public PaymentResponseDTO updatePaymentStatus(Long paymentId, PaymentUpdateStatusDTO requestUpdate) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new NotFoundException("Payment not found"));
 
@@ -91,23 +91,23 @@ public class PaymentServiceImpl implements PaymentService {
             throw new BusinessException("Cannot change status of cash payment");
         }
 
-        if (payment.getStatut() == dto.getStatut()) {
+        if (payment.getStatut() == requestUpdate.getStatut()) {
             throw new BusinessException("Payment already has this status");
         }
 
         Order order = orderRepository.findById(payment.getOrderId())
                 .orElseThrow(() -> new NotFoundException("Order not found"));
 
-        if (payment.getStatut() == PaymentStatus.ENCAISSE && dto.getStatut() == PaymentStatus.REJETE) {
+        if (payment.getStatut() == PaymentStatus.ENCAISSE && requestUpdate.getStatut() == PaymentStatus.REJETE) {
             double newRemaining = Math.round((order.getMontantRestant() + payment.getMontant()) * 100.0) / 100.0;
             order.setMontantRestant(newRemaining);
         }
 
-        if (payment.getStatut() != PaymentStatus.ENCAISSE && dto.getStatut() == PaymentStatus.ENCAISSE) {
+        if (payment.getStatut() != PaymentStatus.ENCAISSE && requestUpdate.getStatut() == PaymentStatus.ENCAISSE) {
             payment.setDateEncaissement(LocalDateTime.now());
         }
 
-        payment.setStatut(dto.getStatut());
+        payment.setStatut(requestUpdate.getStatut());
         Payment saved = paymentRepository.save(payment);
         orderRepository.save(order);
 

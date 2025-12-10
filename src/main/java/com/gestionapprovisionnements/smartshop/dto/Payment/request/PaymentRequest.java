@@ -1,6 +1,8 @@
 package com.gestionapprovisionnements.smartshop.dto.Payment.request;
 
 import com.gestionapprovisionnements.smartshop.entity.enums.PaymentType;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,12 +13,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaymentRequest {
+    @NotNull
+    private Long orderId;
+
+    @NotNull
+    @DecimalMin(value = "0.01")
     private Double montant;
+
     private PaymentType type;
-    private LocalDateTime dateEncaissement; // optional for deferred payments
+    private LocalDateTime dateEncaissement; // optional
     private String numeroCheque;
     private String banque;
-    private LocalDateTime echeance;
+    private LocalDateTime echeance; // fo9ach itsala cheque
     private String reference;
 }
 
