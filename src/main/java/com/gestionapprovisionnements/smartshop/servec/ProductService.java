@@ -5,8 +5,6 @@ import com.gestionapprovisionnements.smartshop.dto.Product.Request.ProductUpdatR
 import com.gestionapprovisionnements.smartshop.dto.Product.Response.ProductResponse;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
-
 public interface ProductService {
     ProductResponse create(ProductRequest request);
     ProductResponse update(Long id, ProductUpdatRequest request);

@@ -22,7 +22,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
-
+    @Override
     public ProductResponse create(ProductRequest request) {
         if (productRepository.existsProductByNameAndDeletedFalse(request.getName())) {
             throw new ResourceAlreadyExistsException("Un produit avec ce nom existe déjà");
@@ -38,19 +38,19 @@ public class ProductServiceImpl implements ProductService {
         Product saved = productRepository.save(product);
         return productMapper.toResponse(saved);
     }
-
+    @Override
     public ProductResponse update(Long id, ProductUpdatRequest request) {
         Optional<Product> opt = productRepository.findById(id);
         Product product = opt.filter(p -> p.getDeleted() == null || !p.getDeleted())
                 .orElseThrow(() -> new NotFoundException("Produit non trouvé"));
 
-        // Mise à jour partielle : MapStruct ignore les champs null du DTO
+
         productMapper.updateFromDto(request, product);
 
         Product updated = productRepository.save(product);
         return productMapper.toResponse(updated);
     }
-
+    @Override
     public void delete(Long id) {
         Optional<Product> opt = productRepository.findById(id);
         Product product = opt.filter(p -> p.getDeleted() == null || !p.getDeleted())

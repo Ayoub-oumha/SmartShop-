@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class ProductUpdatRequest {
     private String name;
 
-    @JsonProperty("prix")
+
     private Double price;
 
     private Integer stock;
