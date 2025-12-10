@@ -14,5 +14,5 @@ public class ClientResponse {
     private double totalSpent;
     private LocalDateTime firstOrderDate;
     private LocalDateTime lastOrderDate;
-    private CustomerTier tier;
+    private CustomerTier customerTier;
 }

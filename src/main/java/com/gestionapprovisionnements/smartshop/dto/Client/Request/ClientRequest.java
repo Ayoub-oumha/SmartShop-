@@ -15,6 +15,6 @@ public class ClientRequest {
     @NotBlank(message = "Le nom est obligatoire")
     private String nom;
     @Email
-    @NotBlank
+    @NotBlank(message = "email est obligatoire")
     private String email;
 }

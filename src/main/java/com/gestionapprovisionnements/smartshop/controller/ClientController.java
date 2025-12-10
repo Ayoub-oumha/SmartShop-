@@ -1,16 +1,14 @@
 package com.gestionapprovisionnements.smartshop.controller;
 
-import com.gestionapprovisionnements.smartshop.dto.Client.Request.ClientRequest;
 import com.gestionapprovisionnements.smartshop.dto.Client.Request.ClientUpdatRequest;
 import com.gestionapprovisionnements.smartshop.dto.Client.Response.ClientResponse;
-import com.gestionapprovisionnements.smartshop.entity.enums.UserRole;
+import com.gestionapprovisionnements.smartshop.dto.Client.Response.ClientStatisticsResponse;
+import com.gestionapprovisionnements.smartshop.dto.Order.response.OrderResponse;
 import com.gestionapprovisionnements.smartshop.exiption.UnauthorizedAccessException;
 import com.gestionapprovisionnements.smartshop.servec.ClientService;
 import com.gestionapprovisionnements.smartshop.utils.UtilSession;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -61,5 +59,32 @@ public class ClientController {
             throw new UnauthorizedAccessException("You must be admin");
         }
         return ResponseEntity.ok(clientService.getAll());
+    }
+
+    @GetMapping("/me/profile")
+    public ResponseEntity<ClientResponse> getMyProfile(HttpSession httpSession) {
+        if(!UtilSession.isClient(httpSession)){
+            throw new UnauthorizedAccessException("you must me authenticated and be clinet") ;
+        }
+        Long clientId = (Long) httpSession.getAttribute("userId");
+        return ResponseEntity.ok(clientService.getMyProfile(clientId));
+    }
+
+    @GetMapping("/me/orders")
+    public ResponseEntity<List<OrderResponse>> getMyOrderHistory(HttpSession httpSession) {
+        if(!UtilSession.isClient(httpSession)){
+            throw new UnauthorizedAccessException("you must me authenticated and be clinet") ;
+        }
+        Long clientId = (Long) httpSession.getAttribute("userId");
+        return ResponseEntity.ok(clientService.getMyOrderHistory(clientId));
+    }
+
+    @GetMapping("/me/statistics")
+    public ResponseEntity<ClientStatisticsResponse> getMyStatistics(HttpSession httpSession) {
+        if(!UtilSession.isClient(httpSession)){
+            throw new UnauthorizedAccessException("you must me authenticated and be clinet") ;
+        }
+        Long clientId = (Long) httpSession.getAttribute("userId");
+        return ResponseEntity.ok(clientService.getMyStatistics(clientId));
     }
 }
