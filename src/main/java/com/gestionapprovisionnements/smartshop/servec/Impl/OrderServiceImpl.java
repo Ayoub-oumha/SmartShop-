@@ -4,6 +4,7 @@ import com.gestionapprovisionnements.smartshop.dto.Order.request.OrderItemReques
 import com.gestionapprovisionnements.smartshop.dto.Order.request.OrderRequest;
 import com.gestionapprovisionnements.smartshop.dto.Order.response.OrderResponse;
 import com.gestionapprovisionnements.smartshop.entity.*;
+import com.gestionapprovisionnements.smartshop.entity.*;
 import com.gestionapprovisionnements.smartshop.entity.enums.CustomerTier;
 import com.gestionapprovisionnements.smartshop.entity.enums.OrderStatus;
 import com.gestionapprovisionnements.smartshop.exiption.BusinessException;
@@ -35,19 +36,15 @@ public class OrderServiceImpl implements OrderService {
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final CodePromoRepository codePromoRepository;
-    private final PaymentRepository paymentRepository;
-    private final OrderMapper orderMapper;
-    private final PaymentMapper paymentMapper;
 
-    // TVA rate (example 20%)
-    private final double tvaRate = 0.2;
+    private final OrderMapper orderMapper;
+
 
     @Override
     @Transactional
     public OrderResponse createOrder(OrderRequest orderReauest) {
         if (orderReauest == null || orderReauest.getClientId() == null || orderReauest.getItems() == null || orderReauest.getItems().isEmpty()) {
             throw new IllegalArgumentException("Invalid order request");
-            // je pense il feut ajouter illegalArgumentException
         }
 
         Client client = clientRepository.findById(orderReauest.getClientId())
@@ -92,10 +89,10 @@ public class OrderServiceImpl implements OrderService {
         order.setItems(orderItems);
         order.setSousTotal(subtotal);
 
-        // Apply loyalty discount
+        // Apply loyalty discount bach n3rfo chhal n9so
         double loyaltyDiscount = calculateLoyaltyDiscount(client, subtotal);
 
-        // Apply promo code discount if provided
+        // promo code discount
         double promoDiscount = 0.0;
         CodePromo promo = null;
         if (orderReauest.getPromoCode() != null && !orderReauest.getPromoCode().trim().isEmpty()) {
@@ -116,6 +113,8 @@ public class OrderServiceImpl implements OrderService {
 
         // Total calculations
         double amountAfterDiscount = subtotal - totalDiscount;
+        // 20%
+        double tvaRate = 0.2;
         double tva = Math.round(amountAfterDiscount * tvaRate * 100.0) / 100.0;
         order.setTva(tva);
         double total = Math.round((amountAfterDiscount + tva) * 100.0) / 100.0;
@@ -128,10 +127,6 @@ public class OrderServiceImpl implements OrderService {
         }
 
         Order saved = orderRepository.save(order);
-
-        // Note: stock decrement and client stats update happen on confirmOrder
-
-        // mark promo inactive if used and order accepted (on confirm)
 
         // Build response using mapper
         OrderResponse response = orderMapper.toResponse(saved);
