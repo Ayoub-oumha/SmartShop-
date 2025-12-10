@@ -102,16 +102,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
     // Catch all unexpected exceptions
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleAllExceptions(Exception ex, HttpServletRequest request) {
-        Map<String, Object> error = new HashMap<>();
-        error.put("timestamp", Instant.now().toString());
-        error.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        error.put("error", "Internal Server Error");
-        error.put("message", "Something went wrong. Please try again later.");
-        error.put("path", request.getRequestURI());
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+ //   @ExceptionHandler(Exception.class)
+//    public ResponseEntity<Map<String, Object>> handleAllExceptions(Exception ex, HttpServletRequest request) {
+//        Map<String, Object> error = new HashMap<>();
+//        error.put("timestamp", Instant.now().toString());
+//        error.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+//        error.put("error", "Internal Server Error");
+//        error.put("message", "Something went wrong. Please try again later.");
+//        error.put("path", request.getRequestURI());
+//        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 
     // Optional: handle specific exceptions like NullPointerException
     @ExceptionHandler(NullPointerException.class)

@@ -1,5 +1,6 @@
 package com.gestionapprovisionnements.smartshop.servec.Impl;
 
+import com.gestionapprovisionnements.smartshop.controller.PromoCode;
 import com.gestionapprovisionnements.smartshop.dto.Promo.response.PromoCodeResponseDTO;
 import com.gestionapprovisionnements.smartshop.entity.CodePromo;
 import com.gestionapprovisionnements.smartshop.mapper.PromoCodeMapper;
@@ -7,6 +8,7 @@ import com.gestionapprovisionnements.smartshop.repository.CodePromoRepository;
 import com.gestionapprovisionnements.smartshop.servec.PromoCodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -46,8 +48,9 @@ public class PromoCodeServiceImpl implements PromoCodeService {
     }
 
     @Override
-    public Page<PromoCodeResponseDTO> getAllPromoCodes(Pageable pageable) {
-        return codePromoRepository.findAll(pageable).map(promoCodeMapper::toDto);
+    public Page<PromoCodeResponseDTO> getAllPromoCodes(int page , int size) {
+        Page<CodePromo> promoCodes = codePromoRepository.findAll(PageRequest.of(page , size)) ;
+        return promoCodes.map(promoCodeMapper::toDto) ;
     }
 
     private String generateUniqueCode() {
@@ -58,7 +61,7 @@ public class PromoCodeServiceImpl implements PromoCodeService {
                 return candidate;
             }
         }
-        // fallback: use timestamp to guarantee uniqueness
+
         String fallback = PREFIX + System.currentTimeMillis();
         return fallback;
     }

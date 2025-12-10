@@ -6,6 +6,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface PromoCodeService {
     PromoCodeResponseDTO generatePromoCode();
-    Page<PromoCodeResponseDTO> getAllPromoCodes(Pageable pageable);
+    Page<PromoCodeResponseDTO> getAllPromoCodes(int page , int size);
 }
 
