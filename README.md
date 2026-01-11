@@ -22,7 +22,7 @@ L’application permet la gestion complète des **clients**, **produits**, **com
 
 ## 🧰 Technologies Utilisées
 
-* **Langage** : Java 8+
+* **Langage** : Java 17
 * **Framework** : Spring Boot
 * **ORM** : Spring Data JPA (Hibernate)
 * **Base de données** : PostgreSQL / MySQL
